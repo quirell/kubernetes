@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -82,28 +83,15 @@ public class PiService {
         LinkedList<String> free = new LinkedList<>(slaves);
         BigDecimal sum = new BigDecimal(0, new MathContext(precision));
         while (nextIteration < iterations || free.size() != slaves.size()) {
-            Future<PartialResult> future;
-            if (nextIteration >= iterations || free.isEmpty()) {
+            Optional<Future<PartialResult>> future = getNextAvailableResult(iterations, nextIteration, free);
+            if (future.isPresent()) {
                 try {
-                    future = completionService.take();
-                } catch (InterruptedException e) {
-                    throw new Error("A worker thread has been interrupted, quitting", e);
-                }
-            } else {
-                future = completionService.poll();
-            }
-            if (future != null) {
-                try {
-                    PartialResult part = future.get();
+                    PartialResult part = future.get().get();
                     free.addLast(part.getSlave());
                     if (part.failure()) {
                         completionService.submit(() -> communication.getPartialSum(free.removeFirst(), part.getStart(), part.getIterations(), precision));
                     } else {
-                        if (part.getDuration() > computationTime) {
-                            nextBatch = part.getIterations() / 2;
-                        } else {
-                            nextBatch = part.getIterations() * 2;
-                        }
+                        nextBatch = updateNextBatchSize(part);
                         sum = sum.add(part.getSum());
                     }
                 } catch (InterruptedException | ExecutionException e) {
@@ -121,6 +109,30 @@ public class PiService {
         }
         logger.info("Computation completed precision {}", precision);
         return sum.divide(new BigDecimal(64), precision, BigDecimal.ROUND_FLOOR).toPlainString();
+    }
+
+    private int updateNextBatchSize(PartialResult part) {
+        int nextBatch;
+        if (part.getDuration() > computationTime) {
+            nextBatch = part.getIterations() / 2;
+        } else {
+            nextBatch = part.getIterations() * 2;
+        }
+        return nextBatch;
+    }
+
+    private Optional<Future<PartialResult>> getNextAvailableResult(int iterations, int nextIteration, LinkedList<String> free) {
+        Future<PartialResult> future;
+        if (nextIteration >= iterations || free.isEmpty()) {
+            try {
+                future = completionService.take();
+            } catch (InterruptedException e) {
+                throw new Error("A worker thread has been interrupted, quitting", e);
+            }
+        } else {
+            future = completionService.poll();
+        }
+        return Optional.ofNullable(future);
     }
 
 }

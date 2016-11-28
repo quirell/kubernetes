@@ -12,9 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
@@ -40,9 +38,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean
-    public CompletionService<PartialResult> completionService(@Value("${SLAVES_LIST:#{null}}") Optional<List<String>> slaves) {
+    public CompletionService<PartialResult> completionService(@Value("${SLAVES_LIST:#{null}}") Optional<List<String>> slaves, @Value("${pi.maxthreads}") int maxThreads) {
         if (slaves.isPresent())
-            return new ExecutorCompletionService<>(Executors.newFixedThreadPool(slaves.get().size()));
+            return new ExecutorCompletionService<>(new ThreadPoolExecutor(slaves.get().size(), maxThreads, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>()));
         return null;
     }
 }
