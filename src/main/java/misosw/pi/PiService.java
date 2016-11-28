@@ -82,7 +82,7 @@ public class PiService {
         int nextIteration = 0;
         LinkedList<String> free = new LinkedList<>(slaves);
         BigDecimal sum = new BigDecimal(0, new MathContext(precision));
-        while (nextIteration < iterations || free.size() != slaves.size()) {
+        while (hasPendingBatchesOrNotAllBatchesComputed(iterations, nextIteration, free)) {
             Optional<Future<PartialResult>> future = getNextAvailableResult(iterations, nextIteration, free);
             if (future.isPresent()) {
                 try {
@@ -109,6 +109,10 @@ public class PiService {
         }
         logger.info("Computation completed precision {}", precision);
         return sum.divide(new BigDecimal(64), precision, BigDecimal.ROUND_FLOOR).toPlainString();
+    }
+
+    private boolean hasPendingBatchesOrNotAllBatchesComputed(int iterations, int nextIteration, LinkedList<String> free) {
+        return nextIteration < iterations || free.size() != slaves.size();
     }
 
     private int updateNextBatchSize(PartialResult part) {
