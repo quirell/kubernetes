@@ -23,21 +23,19 @@ public class PiService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${SLAVES_LIST}")
+    @Value("${SLAVES_LIST:#{null}}")
     private List<String> slaves;
-
-    @Value("${MASTER}")
-    private boolean isMaster;
 
     @Value("${pi.batch}")
     private int batch;
     @Value("${pi.computation.time}")
     private int computationTime;
+
     private static final int CONVERGENCE_SPEED = 3;
 
     @Autowired
     private CommunicationService communication;
-    @Autowired
+    @Autowired(required = false)
     private CompletionService<PartialResult> completionService;
 
     public BigDecimal bellardsFormula(int start, int iterations, int precision) {

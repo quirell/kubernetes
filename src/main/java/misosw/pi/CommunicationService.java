@@ -21,7 +21,6 @@ public class CommunicationService {
     private RestTemplate restTemplate;
 
     public PartialResult getPartialSum(String slave, int start, int iterations, int precision) {
-        //logger.info("Requesting {} start {} iters {} precision {} success {}", slave, start, iterations, precision);
         StopWatch watch = new StopWatch();
         watch.start();
         ResponseEntity<String> response = restTemplate.getForEntity(slave + "/compute/{start}/{iterations}/{precision}", String.class, start, iterations, precision);

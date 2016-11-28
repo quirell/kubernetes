@@ -11,6 +11,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
@@ -39,7 +40,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean
-    public CompletionService<PartialResult> completionService(@Value("${SLAVES_LIST}") List<String> slaves) {
-        return new ExecutorCompletionService<>(Executors.newFixedThreadPool(slaves.size()));
+    public CompletionService<PartialResult> completionService(@Value("${SLAVES_LIST:#{null}}") Optional<List<String>> slaves) {
+        if (slaves.isPresent())
+            return new ExecutorCompletionService<>(Executors.newFixedThreadPool(slaves.get().size()));
+        return null;
     }
 }
