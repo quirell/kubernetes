@@ -1,4 +1,4 @@
-package misosw.pi;
+package misows.pi;
 
 import java.math.BigDecimal;
 

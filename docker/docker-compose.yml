@@ -1,0 +1,5 @@
+master:
+  image: misows-pi/master-node
+slave:
+  image: misows-pi/slave-node
+

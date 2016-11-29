@@ -6,7 +6,11 @@
     <groupId>misosw.pi</groupId>
     <artifactId>misosw-kubernetes-pi</artifactId>
     <version>0.1.0</version>
-    <packaging>war</packaging>
+    <modules>
+        <module>master-node</module>
+        <module>slave-node</module>
+    </modules>
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -18,26 +22,12 @@
         <java.version>1.8</java.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <!--<dependencies>-->
+        <!--<dependency>-->
+            <!--<groupId>io.fabric8</groupId>-->
+            <!--<artifactId>spring-cloud-starter-kubernetes-all</artifactId>-->
+            <!--<version>0.1.3</version>-->
+        <!--</dependency>-->
+    <!--</dependencies>-->
 
 </project>
